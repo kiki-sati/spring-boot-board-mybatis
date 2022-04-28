@@ -1,0 +1,7 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<!-- th:replace : header.html의 main-head 프래그먼트와 body.html의 main-body 프래그먼트를 찾아 해당 코드로 치환 -->
+<head th:replace="board/fragments/header :: main-head"> </head>
+<body th:replace="board/fragments/body :: main-body"> </body>
+</html>

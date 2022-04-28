@@ -1,10 +1,90 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>The page is a write page</title>
-</head>
-<body>
-<h2>Welcome Spring Boot!</h2>
-</body>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorator="board/layout/basic">
+<th:block layout:fragment="title">
+    <title>thiThe page is a write page</title>
+</th:block>
+
+<!-- 타이틀과 마찬가지로 페이지마다 Content 영역의 형태가 다르기 때문에 layout:fragment를 이용 -->
+<th:block layout:fragment="content">
+    <div class="card-content">
+        <!-- form 태그 안에 필드의 "name" 속성 값을 기준으로 th:action 속성에 지정된 URI와 매핑된 컨트롤러의 메서드로 폼 데이터(파라미터)를 전달.-->
+        <!-- onsubmit : form 데이터를 컨트롤러로 전송하기 전에 유효성 검사 할 수 있는 이벤트
+        return이 선언된 이유는 자바스크립트 이벤트가 기본적으로 return true의 성향을 가지기 때문. return이 선언되지 않으면, 폼을 서브밋 했을 때 함수를 실행하지 않고, 바로 컨트롤러를 호출하는 문제가 발생 -->
+
+        <form class="form-horizontal" th:action="@{/board/register.do}" th:object="${board}" method="post" onsubmit="return registerBoard(this)">
+            <!--/* update의 경우 서버로 전달할 게시글 번호 (PK) */-->
+            <!-- th:field를 이용한 사용자 입력 필드(input, textarea 등)는 id, name, value 속성 값이 자동으로 매핑. th:field는 ${ } 표현식이 아닌, *{ } 표현식을 사용-->
+            <input type="hidden" th:if="*{idx != null and idx > 0}" th:field="*{idx}" />
+
+            <div class="form-group">
+                <label for="noticeYn" class="col-sm-2 control-label">공지글 설정</label>
+                <div class="col-sm-10" style="margin-top: 10px;">
+                    <!--체크박스(noticeYn, secretYn)의 경우, th:checked 속성을 이용해서 조건이 "true"에 해당하면 checked 속성을 적용(부여)합니다. 여기서는 타임리프의 equals 함수를 사용하여 값을 비교합니다.-->
+                    <input type="checkbox" th:value="*{noticeYn}" id="noticeYn" name="noticeYn" th:checked="*{#strings.equals( noticeYn, 'Y' )}" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="secretYn" class="col-sm-2 control-label">비밀글 설정</label>
+                <div class="col-sm-10" style="margin-top: 10px;">
+                    <input type="checkbox" th:value="*{secretYn}" id="secretYn" name="secretYn" th:checked="*{#strings.equals( secretYn, 'Y' )}" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="title" class="col-sm-2 control-label">제목</label>
+                <div class="col-sm-10">
+                    <input type="text" th:field="*{title}" class="form-control" placeholder="제목을 입력해 주세요." />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="writer" class="col-sm-2 control-label">이름</label>
+                <div class="col-sm-10">
+                    <input type="text" th:field="*{writer}" class="form-control" placeholder="이름을 입력해 주세요." />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="content" class="col-sm-2 control-label">내용</label>
+                <div class="col-sm-10">
+                    <textarea th:field="*{content}" class="form-control" placeholder="내용을 입력해 주세요."></textarea>
+                </div>
+            </div>
+
+            <div class="btn_wrap text-center">
+                <a th:href="@{/board/list.do}" class="btn btn-default waves-effect waves-light">뒤로가기</a>
+                <button type="submit" class="btn btn-primary waves-effect waves-light">저장하기</button>
+            </div>
+        </form>
+    </div>
+    <!-- /.card-content -->
+</th:block>
+
+<th:block layout:fragment="script">
+    <!--<script> 태그에 th:inline 속성을 javascript로 지정해야 자바스크립트를 사용할 수 있습니다.-->
+    <script th:inline="javascript">
+        // 타임리프는 '<', '>' 태그를 엄격하게 검사하기 때문에 자바스크립트 코드는 꼭 CDATA로 묶어줘야 한다고 합니다. CDATA는 특수문자를 전부 문자열로 치환할 때 사용합니다.
+        /*<![CDATA[*/
+
+        function registerBoard(form) {
+
+            form.noticeYn.value = form.noticeYn.checked == false ? 'N' : 'Y';
+            form.secretYn.value = form.secretYn.checked == false ? 'N' : 'Y';
+
+            var result = (
+                isValid(form.title, "제목", null, null)
+                && isValid(form.writer, "이름", null, null)
+                && isValid(form.content, "내용", null, null)
+            );
+
+            if ( result == false ) {
+                return false;
+            }
+        }
+        /*[- end of function -]*/
+
+        /*]]>*/
+    </script>
+</th:block>
 </html>
